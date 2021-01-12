@@ -100,6 +100,8 @@ trezor.enums.FailureType
 import trezor.enums.FailureType
 trezor.enums.InputScriptType
 import trezor.enums.InputScriptType
+trezor.enums.MemoType
+import trezor.enums.MemoType
 trezor.enums.MessageType
 import trezor.enums.MessageType
 trezor.enums.OutputScriptType

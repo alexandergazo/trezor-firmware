@@ -83,9 +83,12 @@ DebugLinkRecordScreen = 9003
 DebugLinkEraseSdCard = 9005
 DebugLinkWatchLayout = 9006
 if not utils.BITCOIN_ONLY:
+    GetNonce = 31
+    Nonce = 33
     SetU2FCounter = 63
     GetNextU2FCounter = 80
     NextU2FCounter = 81
+    TxAckPaymentRequest = 37
     EthereumGetPublicKey = 450
     EthereumPublicKey = 451
     EthereumGetAddress = 56

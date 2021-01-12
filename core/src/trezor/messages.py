@@ -39,6 +39,7 @@ if TYPE_CHECKING:
     from trezor.enums import EthereumDataType  # noqa: F401
     from trezor.enums import FailureType  # noqa: F401
     from trezor.enums import InputScriptType  # noqa: F401
+    from trezor.enums import MemoType  # noqa: F401
     from trezor.enums import MessageType  # noqa: F401
     from trezor.enums import NEMImportanceTransferMode  # noqa: F401
     from trezor.enums import NEMModificationType  # noqa: F401
@@ -684,6 +685,7 @@ if TYPE_CHECKING:
         op_return_data: "bytes | None"
         orig_hash: "bytes | None"
         orig_index: "int | None"
+        payment_req_index: "int | None"
 
         def __init__(
             self,
@@ -696,6 +698,7 @@ if TYPE_CHECKING:
             op_return_data: "bytes | None" = None,
             orig_hash: "bytes | None" = None,
             orig_index: "int | None" = None,
+            payment_req_index: "int | None" = None,
         ) -> None:
             pass
 
@@ -771,6 +774,28 @@ if TYPE_CHECKING:
 
         @classmethod
         def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["PrevOutput"]:
+            return isinstance(msg, cls)
+
+    class TxAckPaymentRequest(protobuf.MessageType):
+        recipient_name: "str"
+        amount: "int"
+        memos: "list[PaymentRequestMemo]"
+        nonce: "bytes | None"
+        signature: "bytes"
+
+        def __init__(
+            self,
+            *,
+            recipient_name: "str",
+            amount: "int",
+            signature: "bytes",
+            memos: "list[PaymentRequestMemo] | None" = None,
+            nonce: "bytes | None" = None,
+        ) -> None:
+            pass
+
+        @classmethod
+        def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["TxAckPaymentRequest"]:
             return isinstance(msg, cls)
 
     class TxAckInput(protobuf.MessageType):
@@ -977,6 +1002,28 @@ if TYPE_CHECKING:
 
         @classmethod
         def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["TxRequestSerializedType"]:
+            return isinstance(msg, cls)
+
+    class PaymentRequestMemo(protobuf.MessageType):
+        type: "MemoType"
+        data: "bytes"
+        amount: "int | None"
+        coin_name: "str | None"
+        mac: "bytes | None"
+
+        def __init__(
+            self,
+            *,
+            type: "MemoType",
+            data: "bytes",
+            amount: "int | None" = None,
+            coin_name: "str | None" = None,
+            mac: "bytes | None" = None,
+        ) -> None:
+            pass
+
+        @classmethod
+        def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["PaymentRequestMemo"]:
             return isinstance(msg, cls)
 
     class TxAckInputWrapper(protobuf.MessageType):
@@ -2259,6 +2306,26 @@ if TYPE_CHECKING:
 
         @classmethod
         def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["RebootToBootloader"]:
+            return isinstance(msg, cls)
+
+    class GetNonce(protobuf.MessageType):
+
+        @classmethod
+        def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["GetNonce"]:
+            return isinstance(msg, cls)
+
+    class Nonce(protobuf.MessageType):
+        nonce: "bytes"
+
+        def __init__(
+            self,
+            *,
+            nonce: "bytes",
+        ) -> None:
+            pass
+
+        @classmethod
+        def is_type_of(cls, msg: protobuf.MessageType) -> TypeGuard["Nonce"]:
             return isinstance(msg, cls)
 
     class DebugLinkDecision(protobuf.MessageType):

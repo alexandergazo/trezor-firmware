@@ -48,6 +48,8 @@ class MessageType(IntEnum):
     ButtonRequest = 26
     ButtonAck = 27
     ApplyFlags = 28
+    GetNonce = 31
+    Nonce = 33
     BackupDevice = 34
     EntropyRequest = 35
     EntropyAck = 36
@@ -80,6 +82,7 @@ class MessageType(IntEnum):
     TxAck = 22
     GetAddress = 29
     Address = 30
+    TxAckPaymentRequest = 37
     SignMessage = 38
     VerifyMessage = 39
     MessageSignature = 40
@@ -339,6 +342,12 @@ class RequestType(IntEnum):
     TXEXTRADATA = 4
     TXORIGINPUT = 5
     TXORIGOUTPUT = 6
+    TXPAYMENTREQ = 7
+
+
+class MemoType(IntEnum):
+    UTF8_TEXT = 0
+    COIN_PURCHASE = 1
 
 
 class CardanoDerivationType(IntEnum):
@@ -1277,6 +1286,7 @@ class TxOutput(protobuf.MessageType):
         6: protobuf.Field("op_return_data", "bytes", repeated=False, required=False),
         10: protobuf.Field("orig_hash", "bytes", repeated=False, required=False),
         11: protobuf.Field("orig_index", "uint32", repeated=False, required=False),
+        12: protobuf.Field("payment_req_index", "uint32", repeated=False, required=False),
     }
 
     def __init__(
@@ -1290,6 +1300,7 @@ class TxOutput(protobuf.MessageType):
         op_return_data: Optional["bytes"] = None,
         orig_hash: Optional["bytes"] = None,
         orig_index: Optional["int"] = None,
+        payment_req_index: Optional["int"] = None,
     ) -> None:
         self.address_n: Sequence["int"] = address_n if address_n is not None else []
         self.amount = amount
@@ -1299,6 +1310,7 @@ class TxOutput(protobuf.MessageType):
         self.op_return_data = op_return_data
         self.orig_hash = orig_hash
         self.orig_index = orig_index
+        self.payment_req_index = payment_req_index
 
 
 class PrevTx(protobuf.MessageType):
@@ -1383,6 +1395,32 @@ class PrevOutput(protobuf.MessageType):
         self.amount = amount
         self.script_pubkey = script_pubkey
         self.decred_script_version = decred_script_version
+
+
+class TxAckPaymentRequest(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = 37
+    FIELDS = {
+        1: protobuf.Field("recipient_name", "string", repeated=False, required=True),
+        2: protobuf.Field("amount", "uint64", repeated=False, required=True),
+        3: protobuf.Field("memos", "PaymentRequestMemo", repeated=True, required=False),
+        4: protobuf.Field("nonce", "bytes", repeated=False, required=False),
+        5: protobuf.Field("signature", "bytes", repeated=False, required=True),
+    }
+
+    def __init__(
+        self,
+        *,
+        recipient_name: "str",
+        amount: "int",
+        signature: "bytes",
+        memos: Optional[Sequence["PaymentRequestMemo"]] = None,
+        nonce: Optional["bytes"] = None,
+    ) -> None:
+        self.memos: Sequence["PaymentRequestMemo"] = memos if memos is not None else []
+        self.recipient_name = recipient_name
+        self.amount = amount
+        self.signature = signature
+        self.nonce = nonce
 
 
 class TxAckInput(protobuf.MessageType):
@@ -1753,6 +1791,7 @@ class TxOutputType(protobuf.MessageType):
         6: protobuf.Field("op_return_data", "bytes", repeated=False, required=False),
         10: protobuf.Field("orig_hash", "bytes", repeated=False, required=False),
         11: protobuf.Field("orig_index", "uint32", repeated=False, required=False),
+        12: protobuf.Field("payment_req_index", "uint32", repeated=False, required=False),
     }
 
     def __init__(
@@ -1766,6 +1805,7 @@ class TxOutputType(protobuf.MessageType):
         op_return_data: Optional["bytes"] = None,
         orig_hash: Optional["bytes"] = None,
         orig_index: Optional["int"] = None,
+        payment_req_index: Optional["int"] = None,
     ) -> None:
         self.address_n: Sequence["int"] = address_n if address_n is not None else []
         self.amount = amount
@@ -1775,6 +1815,33 @@ class TxOutputType(protobuf.MessageType):
         self.op_return_data = op_return_data
         self.orig_hash = orig_hash
         self.orig_index = orig_index
+        self.payment_req_index = payment_req_index
+
+
+class PaymentRequestMemo(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = None
+    FIELDS = {
+        1: protobuf.Field("type", "MemoType", repeated=False, required=True),
+        2: protobuf.Field("data", "bytes", repeated=False, required=True),
+        3: protobuf.Field("amount", "uint64", repeated=False, required=False),
+        4: protobuf.Field("coin_name", "string", repeated=False, required=False),
+        5: protobuf.Field("mac", "bytes", repeated=False, required=False),
+    }
+
+    def __init__(
+        self,
+        *,
+        type: "MemoType",
+        data: "bytes",
+        amount: Optional["int"] = None,
+        coin_name: Optional["str"] = None,
+        mac: Optional["bytes"] = None,
+    ) -> None:
+        self.type = type
+        self.data = data
+        self.amount = amount
+        self.coin_name = coin_name
+        self.mac = mac
 
 
 class TxAckInputWrapper(protobuf.MessageType):
@@ -3526,6 +3593,24 @@ class CancelAuthorization(protobuf.MessageType):
 
 class RebootToBootloader(protobuf.MessageType):
     MESSAGE_WIRE_TYPE = 87
+
+
+class GetNonce(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = 31
+
+
+class Nonce(protobuf.MessageType):
+    MESSAGE_WIRE_TYPE = 33
+    FIELDS = {
+        1: protobuf.Field("nonce", "bytes", repeated=False, required=True),
+    }
+
+    def __init__(
+        self,
+        *,
+        nonce: "bytes",
+    ) -> None:
+        self.nonce = nonce
 
 
 class DebugLinkDecision(protobuf.MessageType):
