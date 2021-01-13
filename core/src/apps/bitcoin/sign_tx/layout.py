@@ -1,10 +1,12 @@
 from micropython import const
 from ubinascii import hexlify
 
-from trezor import utils
-from trezor.enums import AmountUnit, ButtonRequestType, OutputScriptType
+from trezor import ui, utils
+from trezor.enums import AmountUnit, ButtonRequestType, MemoType, OutputScriptType
 from trezor.strings import format_amount, format_timestamp
 from trezor.ui import layouts
+
+from apps.common import coininfo
 
 from .. import addresses
 from . import omni
@@ -15,7 +17,7 @@ if not utils.BITCOIN_ONLY:
 
 if False:
     from trezor import wire
-    from trezor.messages import TxOutput
+    from trezor.messages import TxAckPaymentRequest, TxOutput
     from trezor.ui.layouts import LayoutType
 
     from apps.common.coininfo import CoinInfo
@@ -65,8 +67,19 @@ async def confirm_output(
     else:
         assert output.address is not None
         address_short = addresses.address_short(coin, output.address)
+        if output.payment_req_index is not None:
+            title = "Confirm details"
+            icon = ui.ICON_CONFIRM
+        else:
+            title = "Confirm sending"
+            icon = ui.ICON_SEND
+
         layout = layouts.confirm_output(
-            ctx, address_short, format_coin_amount(output.amount, coin, amount_unit)
+            ctx,
+            address_short,
+            format_coin_amount(output.amount, coin, amount_unit),
+            title=title,
+            icon=icon,
         )
 
     await layout
@@ -81,6 +94,36 @@ async def confirm_decred_sstx_submission(
     await altcoin.confirm_decred_sstx_submission(
         ctx, address_short, format_coin_amount(output.amount, coin, amount_unit)
     )
+
+
+async def confirm_payment_request(
+    ctx: wire.Context,
+    msg: TxAckPaymentRequest,
+    coin: CoinInfo,
+    amount_unit: AmountUnit,
+) -> bool:
+    memo_texts = []
+    for memo in msg.memos:
+        if memo.type == MemoType.UTF8_TEXT:
+            memo_texts.append(memo.data.decode())
+        elif memo.type == MemoType.COIN_PURCHASE:
+            assert memo.amount is not None  # checked by sanitizer
+            assert memo.coin_name is not None  # checked by sanitizer
+            memo_coin = coininfo.by_name(memo.coin_name)
+            memo_texts.append(
+                "Buying "
+                + format_coin_amount(memo.amount, memo_coin, amount_unit)
+                + "."
+            )
+
+    layout = layouts.confirm_payment_request(
+        ctx,
+        msg.recipient_name,
+        format_coin_amount(msg.amount, coin, amount_unit),
+        memo_texts,
+    )
+
+    return await layout
 
 
 async def confirm_replacement(ctx: wire.Context, description: str, txid: bytes) -> None:

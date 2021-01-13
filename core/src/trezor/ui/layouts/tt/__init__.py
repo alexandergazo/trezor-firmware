@@ -19,7 +19,7 @@ from ...components.common.confirm import (
 )
 from ...components.tt import passphrase, pin
 from ...components.tt.button import ButtonCancel, ButtonDefault
-from ...components.tt.confirm import Confirm, HoldToConfirm
+from ...components.tt.confirm import Confirm, HoldToConfirm, InfoConfirm
 from ...components.tt.scroll import (
     PAGEBREAK,
     AskPaginated,
@@ -60,6 +60,7 @@ __all__ = (
     "show_xpub",
     "show_warning",
     "confirm_output",
+    "confirm_payment_request",
     "confirm_blob",
     "confirm_properties",
     "confirm_total",
@@ -488,6 +489,7 @@ async def confirm_output(
     width: int = MONO_ADDR_PER_LINE,
     width_paginated: int = MONO_ADDR_PER_LINE - 1,
     br_code: ButtonRequestType = ButtonRequestType.ConfirmOutput,
+    icon: str = ui.ICON_SEND,
 ) -> None:
     header_lines = to_str.count("\n") + int(subtitle is not None)
     if len(address) > (TEXT_MAX_LINES - header_lines) * width:
@@ -498,9 +500,9 @@ async def confirm_output(
         if to_paginated:
             para.append((ui.NORMAL, "to"))
         para.extend((ui.MONO, line) for line in chunks(address, width_paginated))
-        content: ui.Layout = paginate_paragraphs(para, title, ui.ICON_SEND, ui.GREEN)
+        content: ui.Layout = paginate_paragraphs(para, title, icon, ui.GREEN)
     else:
-        text = Text(title, ui.ICON_SEND, ui.GREEN, new_lines=False)
+        text = Text(title, icon, ui.GREEN, new_lines=False)
         if subtitle is not None:
             text.normal(subtitle, "\n")
         text.content = [font_amount, amount, ui.NORMAL, color_to, to_str, ui.FG]
@@ -508,6 +510,31 @@ async def confirm_output(
         content = Confirm(text)
 
     await raise_if_cancelled(interact(ctx, content, "confirm_output", br_code))
+
+
+async def confirm_payment_request(
+    ctx: wire.GenericContext,
+    recipient_name: str,
+    amount: str,
+    memos: list[str],
+) -> bool:
+    text = Text("Confirm sending", ui.ICON_SEND, ui.GREEN)
+    text.normal(amount + " to")
+    text.normal(recipient_name)
+    text.br_half()
+    for memo in memos:
+        text.normal(memo)
+
+    result = await raise_if_cancelled(
+        interact(
+            ctx,
+            InfoConfirm(text, info="Details"),
+            "confirm_payment_request",
+            ButtonRequestType.ConfirmOutput,
+        )
+    )
+
+    return result is CONFIRMED
 
 
 async def should_show_more(

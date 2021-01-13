@@ -12,7 +12,7 @@ from . import authorization
 from .common import BITCOIN_NAMES
 
 if False:
-    from typing import Awaitable, Callable, Iterable, TypeVar
+    from typing import Awaitable, Callable, Iterable, TypeVar, Union
     from typing_extensions import Protocol
 
     from trezor.protobuf import MessageType
@@ -23,11 +23,19 @@ if False:
     class MsgWithCoinName(Protocol):
         coin_name: str
 
-    class MsgWithAddressScriptType(Protocol):
+    class _MsgWithAddressScriptType(Protocol):
         # XXX should be Bip32Path but that fails
         address_n: list[int] = ...
         script_type: InputScriptType = ...
 
+    class _MsgWithAddressOptScriptType(Protocol):
+        # XXX should be Bip32Path but that fails
+        address_n: list[int] = ...
+        script_type: InputScriptType | None = ...
+
+    MsgWithAddressScriptType = Union[
+        _MsgWithAddressScriptType, _MsgWithAddressOptScriptType
+    ]
     MsgIn = TypeVar("MsgIn", bound=MsgWithCoinName)
     HandlerWithCoinInfo = Callable[..., Awaitable[MsgOut]]
 
