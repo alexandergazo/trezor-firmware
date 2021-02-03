@@ -290,6 +290,8 @@ apps.bitcoin.writers
 import apps.bitcoin.writers
 apps.common
 import apps.common
+apps.common.address_mac
+import apps.common.address_mac
 apps.common.address_type
 import apps.common.address_type
 apps.common.authorization
