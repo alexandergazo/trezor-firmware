@@ -470,6 +470,12 @@ class DebugSwipeDirection(IntEnum):
     RIGHT = 3
 
 
+class DebugButton(IntEnum):
+    NO = 0
+    YES = 1
+    INFO = 2
+
+
 class EthereumDataType(IntEnum):
     UINT = 1
     INT = 2
@@ -3619,7 +3625,7 @@ class Nonce(protobuf.MessageType):
 class DebugLinkDecision(protobuf.MessageType):
     MESSAGE_WIRE_TYPE = 100
     FIELDS = {
-        1: protobuf.Field("yes_no", "bool", repeated=False, required=False),
+        1: protobuf.Field("button", "DebugButton", repeated=False, required=False),
         2: protobuf.Field("swipe", "DebugSwipeDirection", repeated=False, required=False),
         3: protobuf.Field("input", "string", repeated=False, required=False),
         4: protobuf.Field("x", "uint32", repeated=False, required=False),
@@ -3631,7 +3637,7 @@ class DebugLinkDecision(protobuf.MessageType):
     def __init__(
         self,
         *,
-        yes_no: Optional["bool"] = None,
+        button: Optional["DebugButton"] = None,
         swipe: Optional["DebugSwipeDirection"] = None,
         input: Optional["str"] = None,
         x: Optional["int"] = None,
@@ -3639,7 +3645,7 @@ class DebugLinkDecision(protobuf.MessageType):
         wait: Optional["bool"] = None,
         hold_ms: Optional["int"] = None,
     ) -> None:
-        self.yes_no = yes_no
+        self.button = button
         self.swipe = swipe
         self.input = input
         self.x = x
