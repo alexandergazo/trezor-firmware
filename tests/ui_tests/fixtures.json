@@ -308,6 +308,7 @@
 "bitcoin-test_signtx_payreq.py::test_payment_request[out12]": "d97489a0d4d6b02e95fc1d282cbfd8d4c8a58db8e055ddbf95cde4488ca071c3",
 "bitcoin-test_signtx_payreq.py::test_payment_request[out1]": "0e1a45511a51a4f1c3bf87b722401d1aea48af728f78d89d2bc1c74f1361bcf3",
 "bitcoin-test_signtx_payreq.py::test_payment_request[out2]": "1f670f6afe51b1ab4d675f0abf0cecc351272e0cef9bcfe1396ca7b10468d03f",
+"bitcoin-test_signtx_payreq.py::test_payment_request_details": "9d3104037330516600604676ba4e1b9fe95610bb862946a93861148a9972f5ff",
 "bitcoin-test_signtx_prevhash.py::test_invalid_prev_hash[]": "1c100ce4b7c1e47e72428f390de0846c1ff933e9f07894872644a369a9422738",
 "bitcoin-test_signtx_prevhash.py::test_invalid_prev_hash[hello world]": "1c100ce4b7c1e47e72428f390de0846c1ff933e9f07894872644a369a9422738",
 "bitcoin-test_signtx_prevhash.py::test_invalid_prev_hash[x]": "1c100ce4b7c1e47e72428f390de0846c1ff933e9f07894872644a369a9422738",
